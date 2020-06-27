@@ -3,7 +3,7 @@ import random
 
 while True:
 
-    seed = random.choice([1234, 0, 1])
+    seed = 1234
     hid_dim = 128
     z_dim = 100
     v_dim = 1000 #random.choice([100, 1000])
@@ -11,7 +11,7 @@ while True:
     image_size = 32
     init_std = 0.2
     batch_size = 128
-    lr = random.choice([0.00002, 0.0002, 0.002])
+    lr = random.choice([1e-4, 5e-4, 1e-5, 5e-5, 1e-6, 5e-6])
     beta_1 = 0.5
     beta_2 = 0.999
     n_epochs = 10
