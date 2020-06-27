@@ -172,9 +172,11 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, bat
         D.zero_grad()
         z = torch.randn(batch_size, z_dim, 1, 1).to(device)
         gen_images = G(z, x)
-        noise = torch.randn(*gen_images.shape).to(gen_images.device) * noise_mult
+        noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
+        noise = noise.to(gen_images.device)
+        gen_images = gen_images + noise
         #gen_images = gen_images + noise
-        pred_gen = D(gen_images + noise)
+        pred_gen = D(gen_images)
         #pred_gen = D(gen_images, noise_mult)
         D_gen_loss = criterion(pred_gen, y)
 
@@ -199,7 +201,8 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, bat
         z = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
         gen_images = G(z, x)
-        noise = torch.randn(*gen_images.shape).to(gen_images.device) * noise_mult
+        noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
+        noise = noise.to(gen_images.device)
         gen_images = gen_images + noise
         pred_gen = D(gen_images)
         #pred_gen = D(gen_images, noise_mult)
