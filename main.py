@@ -47,9 +47,9 @@ assert args.beta_2 > 0
 assert args.n_epochs > 0
 assert args.noise_inc_min > 0 or args.noise_inc_min == -100
 assert args.noise_mult >= 0
-assert args.noise_inc_fac >= 1.0
 
-
+if args.noise_inc_min == -100:
+    assert args.noise_inc_fac == 1.0
 
 run_name = '-'.join([f'{k}={v}' for k, v in vars(args).items()])
 
@@ -161,7 +161,7 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, bat
     G_losses = []
     y_fake = torch.zeros(batch_size).long().to(device)
 
-    for i in tqdm(range(n_iters)):
+    for _ in tqdm(range(n_iters)):
 
         #get batch of generated data
         x, y = make_batch(batch_size, v_dim, one_hot = one_hot)
@@ -241,6 +241,8 @@ def save_images(G, image_channels, image_size, fixed_z, fixed_x, file_name, norm
 
         ax.imshow(image.permute(1, 2, 0).squeeze().detach().cpu().numpy())
         ax.axis('off')
+
+    fig.tight_layout()
 
     fig.savefig(file_name)
 

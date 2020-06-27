@@ -17,7 +17,10 @@ while True:
     n_iters = random.choice([100, 250, 500])
     noise_mult = random.choice([0, 1.0, 3.0, 5.0, 7.0, 9.0])
     noise_inc_min = random.choice([1.0, -100])
-    noise_inc_fac = random.choice([1.1, 1.25, 1.5, 2.0])
+    if noise_inc_min == -100:
+        noise_inc_fac = 1.0
+    else:
+        noise_inc_fac = random.choice([1.1, 1.25, 1.5, 2.0])
 
     for seed in [0, 1, 1234, 1111]:
 
