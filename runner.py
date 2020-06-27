@@ -6,8 +6,8 @@ while True:
     seed = 1234
     hid_dim = 128
     z_dim = 100
-    v_dim = 1000 #random.choice([100, 1000])
-    image_channels = 3 #random.choice([1, 3])
+    v_dim = random.choice([100, 1000])
+    image_channels = random.choice([1, 3])
     image_size = 32
     init_std = 0.2
     batch_size = 128
