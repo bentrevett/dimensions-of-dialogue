@@ -176,8 +176,8 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_type, noi
         z = torch.randn(batch_size, z_dim, 1, 1).to(device)
         gen_images = G(z, x)
         if noise_type == 'uniform':
-            raise NotImplementedError
-            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_std
+            noise_mult = noise_std * 3.4641016151377544 #sqrt(12)/1
+            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
         else:
             noise = torch.randn(*gen_images.shape) * noise_std
         noise = noise.to(gen_images.device)
@@ -191,8 +191,8 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_type, noi
         gen_images_dist = distributions.normal.Normal(gen_images.mean(), gen_images.std())
         noise_images = gen_images_dist.sample(gen_images.shape).to(device)
         if noise_type == 'uniform':
-            raise NotImplementedError
-            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_std
+            noise_mult = noise_std * 3.4641016151377544 #sqrt(12)/1
+            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
         else:
             noise = torch.randn(*gen_images.shape) * noise_std
         noise = noise.to(gen_images.device)
@@ -216,8 +216,8 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_type, noi
 
         gen_images = G(z, x)
         if noise_type == 'uniform':
-            raise NotImplementedError
-            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_std
+            noise_mult = noise_std * 3.4641016151377544 #sqrt(12)/1
+            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
         else:
             noise = torch.randn(*gen_images.shape) * noise_std
         noise = noise.to(gen_images.device)
