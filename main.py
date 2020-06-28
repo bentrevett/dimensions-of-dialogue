@@ -28,7 +28,8 @@ parser.add_argument('--beta_1', type=float, default=0.5)
 parser.add_argument('--beta_2', type=float, default=0.999)
 parser.add_argument('--n_epochs', type=int, default=10)
 parser.add_argument('--n_iters', type=int, default=400)
-parser.add_argument('--noise_mult', type=float, default=5.0)
+parser.add_argument('--noise_type', type=str, default='normal')
+parser.add_argument('--noise_std', type=float, default=1.75)
 parser.add_argument('--noise_inc_min', type=float, default=1.0)
 parser.add_argument('--noise_inc_fac', type=float, default=2.0)
 args = parser.parse_args()
@@ -45,6 +46,8 @@ assert args.lr > 0
 assert args.beta_1 > 0
 assert args.beta_2 > 0
 assert args.n_epochs > 0
+assert args.noise_type in ['uniform', 'normal']
+assert args.noise_std >= 0
 assert args.noise_inc_min > 0 or args.noise_inc_min == -100
 assert args.noise_mult >= 0
 
@@ -55,7 +58,7 @@ run_name = '-'.join([f'{k}={v}' for k, v in vars(args).items()])
 
 print(run_name)
 
-run_folder = os.path.join('runs', run_name)
+run_folder = os.path.join('runs2', run_name)
 
 os.makedirs(run_folder)
 
@@ -155,7 +158,7 @@ criterion = nn.CrossEntropyLoss()
 G_optimizer = optim.Adam(G.parameters(), lr = args.lr, betas = (args.beta_1, args.beta_2))
 D_optimizer = optim.Adam(D.parameters(), lr = args.lr, betas = (args.beta_1, args.beta_2))
 
-def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, batch_size, one_hot, device):
+def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_type, noise_std, batch_size, one_hot, device):
 
     D_losses = []
     G_losses = []
@@ -172,7 +175,11 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, bat
         D.zero_grad()
         z = torch.randn(batch_size, z_dim, 1, 1).to(device)
         gen_images = G(z, x)
-        noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
+        if noise_type == 'uniform':
+            raise NotImplementedError
+            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_std
+        else:
+            noise = torch.randn(*gen_images.shape) * noise_std
         noise = noise.to(gen_images.device)
         gen_images = gen_images + noise
         #gen_images = gen_images + noise
@@ -181,9 +188,16 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, bat
         D_gen_loss = criterion(pred_gen, y)
 
         #train discriminator on fake images (noise)
-        noise = distributions.normal.Normal(gen_images.mean(), gen_images.std())
-        noise = noise.sample(gen_images.shape).to(device)
-        pred_noise = D(noise) #w/ no noise added
+        gen_images_dist = distributions.normal.Normal(gen_images.mean(), gen_images.std())
+        noise_images = gen_images_dist.sample(gen_images.shape).to(device)
+        if noise_type == 'uniform':
+            raise NotImplementedError
+            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_std
+        else:
+            noise = torch.randn(*gen_images.shape) * noise_std
+        noise = noise.to(gen_images.device)
+        noise_images = noise_images + noise
+        pred_noise = D(noise_images) #w/ no noise added
         D_noise_loss = criterion(pred_noise, y_fake)
 
         #update discriminator parameters
@@ -201,7 +215,11 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_mult, bat
         z = torch.randn(batch_size, z_dim, 1, 1).to(device)
 
         gen_images = G(z, x)
-        noise = (torch.rand(*gen_images.shape) - 0.5) * noise_mult
+        if noise_type == 'uniform':
+            raise NotImplementedError
+            noise = (torch.rand(*gen_images.shape) - 0.5) * noise_std
+        else:
+            noise = torch.randn(*gen_images.shape) * noise_std
         noise = noise.to(gen_images.device)
         gen_images = gen_images + noise
         pred_gen = D(gen_images)
@@ -258,7 +276,7 @@ with open(log_name, 'w+') as f:
 
 for epoch in range(args.n_epochs):
 
-    D_loss, G_loss = train(G, D, G_optimizer, D_optimizer, args.v_dim, args.z_dim, args.n_iters, args.noise_mult, args.batch_size, args.one_hot, device)
+    D_loss, G_loss = train(G, D, G_optimizer, D_optimizer, args.v_dim, args.z_dim, args.n_iters, args.noise_type, args.noise_std, args.batch_size, args.one_hot, device)
     print(f'Epoch: {epoch+1}, Noise Mult: {args.noise_mult}')
     print(f'D Loss: {D_loss}')
     print(f'G Loss: {G_loss}')
@@ -271,4 +289,4 @@ for epoch in range(args.n_epochs):
     gen_images = save_images(G, args.image_channels, args.image_size, fixed_z, fixed_x, image_name)
 
     if D_loss + G_loss < args.noise_inc_min:
-        args.noise_mult *= args.noise_inc_fac
+        args.noise_std *= args.noise_inc_fac
