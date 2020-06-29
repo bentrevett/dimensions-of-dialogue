@@ -49,7 +49,6 @@ assert args.n_epochs > 0
 assert args.noise_type in ['uniform', 'normal']
 assert args.noise_std >= 0
 assert args.noise_inc_min > 0 or args.noise_inc_min == -100
-assert args.noise_mult >= 0
 
 if args.noise_inc_min == -100:
     assert args.noise_inc_fac == 1.0
@@ -58,7 +57,7 @@ run_name = '-'.join([f'{k}={v}' for k, v in vars(args).items()])
 
 print(run_name)
 
-run_folder = os.path.join('runs2', run_name)
+run_folder = os.path.join('runs', run_name)
 
 os.makedirs(run_folder)
 
@@ -277,7 +276,7 @@ with open(log_name, 'w+') as f:
 for epoch in range(args.n_epochs):
 
     D_loss, G_loss = train(G, D, G_optimizer, D_optimizer, args.v_dim, args.z_dim, args.n_iters, args.noise_type, args.noise_std, args.batch_size, args.one_hot, device)
-    print(f'Epoch: {epoch+1}, Noise Mult: {args.noise_mult}')
+    print(f'Epoch: {epoch+1}, Noise Std: {args.noise_std}')
     print(f'D Loss: {D_loss}')
     print(f'G Loss: {G_loss}')
 

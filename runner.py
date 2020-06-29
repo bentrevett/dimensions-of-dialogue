@@ -16,8 +16,8 @@ while True:
     beta_2 = 0.999
     n_epochs = 10
     n_iters = random.choice([100, 250, 500])
-    noise_type = 'normal'
-    noise_std = random.choice([0, 0.1, 0.25, 0.5, 0.75, 1.0])
+    noise_type = random.choice(['normal', 'uniform'])
+    noise_std = random.choice([0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.5, 1.75, 2.0, 2.25, 2.5])
     noise_inc_min = random.choice([1.0, -100])
     if noise_inc_min == -100:
         noise_inc_fac = 1.0
