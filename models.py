@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class Generator(nn.Module):
     def __init__(self, hid_dim, z_dim, v_dim, image_channels):
         super().__init__()
@@ -37,7 +38,6 @@ class Discriminator(nn.Module):
         self.fc1 = nn.Linear(hid_dim*4*4*4, 512)
         self.fc2 = nn.Linear(512, v_dim+1)
 
-    # forward method
     def forward(self, x):
         x = F.leaky_relu(self.conv1_1(x), 0.2)
         x = F.leaky_relu(self.conv2_bn(self.conv2(x)), 0.2)
