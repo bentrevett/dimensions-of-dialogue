@@ -20,7 +20,6 @@ parser.add_argument('--hid_dim', type=int, default=128)
 parser.add_argument('--z_dim', type=int, default=100)
 parser.add_argument('--v_dim', type=int, default=1000)
 parser.add_argument('--image_channels', type=int, default=3)
-parser.add_argument('--image_size', type=int, default=32)
 parser.add_argument('--init_std', type=float, default=0.02)
 parser.add_argument('--batch_size', type=int, default=128)
 parser.add_argument('--lr', type=float, default=0.0001)
@@ -43,7 +42,6 @@ assert args.hid_dim > 0
 assert args.z_dim > 0
 assert args.v_dim > 0
 assert args.image_channels in [1, 3]
-assert args.image_size > 0
 assert args.init_std > 0
 assert args.batch_size > 0
 assert args.lr > 0
@@ -185,12 +183,17 @@ def normalize_image(image):
     return image
 
 
-def save_images(G, image_channels, image_size, fixed_z, fixed_x, file_name, normalize=True):
+def save_images(G, image_channels, fixed_z, fixed_x, file_name, normalize=True):
     """
     generate images using the fixed z and x
     plot in a square figure
     save in runs/{epoch_number}.png
     """
+
+    if image_channels == 1:
+        cmap = 'gray'
+    else:
+        cmap = 'viridis'
 
     n_images = len(fixed_x)
     rows = int(np.sqrt(n_images))
@@ -211,7 +214,7 @@ def save_images(G, image_channels, image_size, fixed_z, fixed_x, file_name, norm
         if normalize:
             image = normalize_image(image)
 
-        ax.imshow(image.permute(1, 2, 0).squeeze().detach().cpu().numpy())
+        ax.imshow(image.permute(1, 2, 0).squeeze().detach().cpu().numpy(), cmap=cmap)
         ax.axis('off')
 
     fig.tight_layout()
@@ -231,8 +234,7 @@ for epoch in range(args.n_epochs):
 
     image_path = os.path.join('run', f'{epoch+1}')
 
-    gen_images = save_images(G, args.image_channels, args.image_size,
-                             fixed_z, fixed_x, image_path)
+    gen_images = save_images(G, args.image_channels, fixed_z, fixed_x, image_path)
 
     # for each of the types of noise, increase amount by "inc_fac" if loss is below "inc_min"
     # helps prevent overfitting

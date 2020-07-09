@@ -76,9 +76,33 @@ Finally, we can add rotations to noisy channel. These are added alongside the no
  <img src="./assets/1.0-0.1-10.png">
 </p>
 
+Here are the above three experiments with `image_channels` set to 1, i.e. generated images are black and white.
+
+<p align="center">
+ Gaussian noise with an initial standard deviation of 0.1<br>
+ Shifting with an initial shift percent of 0.1<br>
+ Rotation with an initial angle of 10
+ <img src="./assets/bw-0.1-0.1-10.png">
+</p>
+
+<p align="center">
+ Gaussian noise with an initial standard deviation of 0.5<br>
+ Shifting with an initial shift percent of 0.1<br>
+ Rotation with an initial angle of 10
+ <img src="./assets/bw-0.5-0.1-10.png">
+</p>
+
+<p align="center">
+ Gaussian noise with an initial standard deviation of 1.0<br>
+ Shifting with an initial shift percent of 0.1<br>
+ Rotation with an initial angle of 10
+ <img src="./assets/bw-1.0-0.1-10.png">
+</p>
+
 ## Notes
 
-- All of the above models are created with the default hyperparameters, only the `noise_std`, `shift_pct` and `rot_angle` have been changed throughout the experiments. 
+- All of the above models are created with the default hyperparameters, only the `noise_std`, `shift_pct` and `rot_angle` have been changed throughout the experiments.
+- Generated images always have a height and width of 32 pixels.
 - Models implemented in [PyTorch](https://pytorch.org) 1.5.1.
 - [kornia](https://github.com/kornia/kornia) is required for rotations in the noisy channel.
 - Shifting taken from the GlyphNet code [here](https://github.com/noahtren/GlyphNet/blob/master/glyphnet/noise.py#L85-L132). All images within a batch are shifted by the exact same amount.
