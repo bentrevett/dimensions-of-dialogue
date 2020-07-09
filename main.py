@@ -37,7 +37,6 @@ parser.add_argument('--shift_inc_min', type=float, default=1.0)
 parser.add_argument('--shift_inc_fac', type=float, default=1.1)
 parser.add_argument('--rot_inc_min', type=float, default=1.0)
 parser.add_argument('--rot_inc_fac', type=float, default=1.2)
-
 args = parser.parse_args()
 
 assert args.hid_dim > 0
@@ -68,6 +67,9 @@ D = models.Discriminator(args.hid_dim, args.v_dim, args.image_channels)
 
 
 def initialize_params(m):
+    """
+    initialize neural network parameters
+    """
     if isinstance(m, nn.ConvTranspose2d) or isinstance(m, nn.Conv2d):
         m.weight.data.normal_(mean=0, std=args.init_std)
         m.bias.data.zero_()
@@ -83,6 +85,12 @@ D = D.to(device)
 
 
 def make_batch(batch_size, v_dim, fixed=False):
+    """
+    makes a batch of one-hot data
+    label is the index of the 1 in the one-hot vector
+    label is chosen between 1 and v_dim as 0 is reserved for noise message
+    when fixed=True, examples have labels 1,2,3,4,5,... etc.
+    """
     x = torch.zeros(batch_size, v_dim+1, 1, 1)
     y = torch.zeros(batch_size).long()
     for i in range(batch_size):
@@ -107,6 +115,12 @@ noise_channel = noise.NoiseChannel(args.noise_std, args.shift_pct, args.rot_angl
 
 
 def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_channel, batch_size, device):
+    """
+    performs n_iters of parameter updates
+    first train the discriminator on generated and fake images
+    then train the generator via how well the discriminator classifies the generated images
+    "fake images" are noise created using the same mean and std as the generated images
+    """
 
     D_losses = []
     G_losses = []
@@ -160,6 +174,10 @@ def train(G, D, G_optimizer, D_optimizer, v_dim, z_dim, n_iters, noise_channel, 
 
 
 def normalize_image(image):
+    """
+    ensure image values are all between 0-1
+    """
+    
     image_min = image.min().item()
     image_max = image.max().item()
     image.clamp_(min=image_min, max=image_max)
@@ -168,6 +186,11 @@ def normalize_image(image):
 
 
 def save_images(G, image_channels, image_size, fixed_z, fixed_x, file_name, normalize=True):
+    """
+    generate images using the fixed z and x
+    plot in a square figure
+    save in runs/{epoch_number}.png
+    """
 
     n_images = len(fixed_x)
     rows = int(np.sqrt(n_images))
@@ -206,10 +229,13 @@ for epoch in range(args.n_epochs):
     print(f'D Loss: {D_loss}')
     print(f'G Loss: {G_loss}')
 
-    image_path = os.path.join('run', f'{epoch}')
+    image_path = os.path.join('run', f'{epoch+1}')
 
     gen_images = save_images(G, args.image_channels, args.image_size,
                              fixed_z, fixed_x, image_path)
+
+    # for each of the types of noise, increase amount by "inc_fac" if loss is below "inc_min"
+    # helps prevent overfitting
 
     if (D_loss + G_loss) < args.noise_inc_min:
         noise_channel.noise_std *= args.noise_inc_fac

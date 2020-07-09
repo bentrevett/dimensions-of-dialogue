@@ -9,18 +9,30 @@ class NoiseChannel:
         self.rot_angle = rot_angle
 
     def apply(self, images):
+        """
+        applies Gaussian noise, random shifts and rotations
+        """
         images = self.apply_noise(images, self.noise_std)
         images = self.apply_shift(images, self.shift_pct)
         images = self.apply_rotation(images, self.rot_angle)
         return images
 
     def apply_noise(self, images, std):
+        """
+        adds gaussian noise with a mean of 0 and a specified std
+        """
         noise = torch.randn(*images.shape) * std
         noise = noise.to(images.device)
         images = images + noise
         return images
 
     def apply_shift(self, images, shift):
+        """
+        pytorch version of https://github.com/noahtren/GlyphNet/blob/master/glyphnet/noise.py#L85-L132
+        shift an image in both the x and y directions
+        `shift` is the percentage of the total image height/width we can potentially shift by
+        all images within batch are shifted by the same amount
+        """
         batch_size = images.shape[0]
         image_shape = images[0].shape
         average_image_dim = (image_shape[1] + image_shape[2]) / 2
@@ -50,6 +62,10 @@ class NoiseChannel:
         return images
 
     def apply_rotation(self, images, angle):
+        """
+        rotate image between -angle and +angle
+        unlike shift, each image in the batch is rotated independently
+        """
         batch_size = images.shape[0]
         angles = torch.zeros(batch_size).uniform_(-angle, angle)
         angles = angles.to(images.device)
