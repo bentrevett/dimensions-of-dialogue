@@ -1,6 +1,6 @@
-# Dimensions of Dialogue
+# Glyphs of Dialogue
 
-A mash up of [Dimensions of Dialogue](https://www.joelsimon.net/dimensions-of-dialogue.html) by [Joel Simon](https://www.joelsimon.net/) and [GlyphNet](https://github.com/noahtren/GlyphNet) by [Noah Tren](https://noahtren.com/).
+A mash up of [GlyphNet](https://github.com/noahtren/GlyphNet) by [Noah Trenaman](https://noahtren.com/) and [Dimensions of Dialogue](https://www.joelsimon.net/dimensions-of-dialogue.html) by [Joel Simon](https://www.joelsimon.net/).
 
 ## Introduction
 
